@@ -41,8 +41,8 @@ repositories {
 }
 
 dependencies {
-   testRuntime "org.slf4j:slf4j-api:1.7.10" //this is required for Cobertura
-   testCompile (
+   testRuntimeOnly "org.slf4j:slf4j-api:1.7.10" //this is required for Cobertura
+   testImplementation (
         'junit:junit:4.12',
         'org.mockito:mockito-all:1.10.19',
 	    'org.javassist:javassist:3.20.0-GA',
