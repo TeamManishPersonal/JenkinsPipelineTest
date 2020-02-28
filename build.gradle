@@ -1,0 +1,50 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+//apply from: 'cobertura.gradle'
+
+defaultTasks 'clean', 'build'
+
+sourceSets {
+  main {
+    java {
+      srcDirs = ['src/main/java']
+    }
+    resources {
+      srcDirs = ['src/main/resources']
+    }
+  }
+  test {
+    java {
+     srcDirs = ['src/test/java']; 
+    }
+    resources {
+     //exclude "**/*.java"
+    }
+  }
+}
+
+test {
+  afterTest { TestDescriptor td, TestResult tr ->
+    println "${tr} ${td}"
+  }
+}
+
+task all(dependsOn: build) {
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+   testRuntime "org.slf4j:slf4j-api:1.7.10" //this is required for Cobertura
+   testCompile (
+        'junit:junit:4.12',
+        'org.mockito:mockito-all:1.10.19',
+	    'org.javassist:javassist:3.20.0-GA',
+    );
+}
