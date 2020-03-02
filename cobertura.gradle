@@ -23,7 +23,7 @@ apply plugin: net.saliman.gradle.plugin.cobertura.CoberturaPlugin
 def jenkinsHome = System.getenv('JENKINS_HOME')
 def jobpath = new File(buildDir.toString() + "/reports/cobertura")
 if(jenkinsHome)
-  jobpath = new File(System.getenv('JENKINS_HOME') + "/jobs/" + System.getenv('JOB_NAME') + "/builds/reports/cobertura")
+  jobpath = new File(System.getenv('JENKINS_HOME') + "/workspace/" + System.getenv('JOB_NAME') + "/builds/reports/cobertura")
 
 mkdir jobpath
 
