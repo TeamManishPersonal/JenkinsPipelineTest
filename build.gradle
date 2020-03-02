@@ -19,7 +19,6 @@ sourceSets {
      srcDirs = ['src/test/java']; 
     }
     resources {
-     //exclude "**/*.java"
     }
   }
 }
