@@ -1,0 +1,60 @@
+buildscript {
+  repositories {
+    maven { url 'https://arm.mo.sw.ericsson.se/artifactory/jcenter/' }
+    dependencies.classpath 'org.jacoco:org.jacoco.ant:0.8.2', 
+    'org.jacoco:org.jacoco.agent:0.8.2'
+  }
+}
+apply plugin: 'jacoco'
+//check if the environment is JENKINS or LOCAL
+def jenkinsHome = System.getenv('JENKINS_HOME')
+def jobpath = new File(buildDir.toString() + "/reports/jacoco")
+if(jenkinsHome)
+  jobpath = new File(System.getenv('JENKINS_HOME') + "/jobs/" + System.getenv('JOB_NAME') + "/builds/reports/jacoco")
+mkdir jobpath
+
+jacoco {
+  toolVersion = "0.8.2"
+}
+
+//Added for Offline Instrumentation for mock, not required if we don't power mock or other advanced mocking framework
+project.ext.jacocoOfflineSourceSets = [ 'main' ]
+task doJacocoOfflineInstrumentation(dependsOn: [ classes, project.configurations.jacocoAnt ]) {
+  inputs.files classes.outputs.files
+  File outputDir = new File(project.buildDir, 'instrumentedClasses')
+  outputs.dir outputDir
+  doFirst {
+    project.delete(outputDir)
+    ant.taskdef (
+      resource: 'org/jacoco/ant/antlib.xml',
+      classpath: project.configurations.jacocoAnt.asPath,
+      uri: 'jacoco'
+    )
+    def instrumented = false
+    jacocoOfflineSourceSets.each { sourceSetName ->
+      if (file(sourceSets[sourceSetName].output.classesDir).exists()) {
+        def instrumentedClassedDir = "${outputDir}/${sourceSetName}"
+        ant.'jacoco:instrument'(destdir: instrumentedClassedDir) {
+          fileset(dir: sourceSets[sourceSetName].output.classesDir, includes: '**/*.class')
+        }
+        //Replace the classes dir in the test classpath with the instrumented one
+        sourceSets.test.runtimeClasspath -= files(sourceSets[sourceSetName].output.classesDir)
+        sourceSets.test.runtimeClasspath += files(instrumentedClassedDir)
+        instrumented = true
+      }
+    }
+    if (instrumented) {
+      test.jvmArgs += '-noverify'
+    }
+  }
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled true
+    csv.enabled false
+    html.destination file("${jobpath}")
+  }
+}
+test.dependsOn doJacocoOfflineInstrumentation
+test.finalizedBy(project.tasks.jacocoTestReport)

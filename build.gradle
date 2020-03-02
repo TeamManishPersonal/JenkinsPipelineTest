@@ -1,7 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-//apply from: 'cobertura.gradle'
+//apply from: 'jacoco.gradle'
+apply from: 'cobertura.gradle'
 
 defaultTasks 'clean', 'build'
 

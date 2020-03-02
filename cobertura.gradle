@@ -1,0 +1,37 @@
+buildscript {
+  repositories {
+    maven { 
+    url "https://oss.sonatype.org/content/repositories/snapshots"
+    mavenCentral()
+    }
+    dependencies.classpath 'org.apache.commons:commons-lang3:3.2',
+                           'oro:oro:2.0.8',
+                           'org.ow2.asm:asm:5.0.1',
+                           'org.ow2.asm:asm-analysis:5.0.1',
+                           'org.ow2.asm:asm-commons:5.0.1',
+                           'org.ow2.asm:asm-tree:5.0.1',
+                           'org.ow2.asm:asm-util:5.0.1',
+                           'net.saliman:gradle-cobertura-plugin:2.3.2'
+  }
+  
+   
+}
+
+apply plugin: net.saliman.gradle.plugin.cobertura.CoberturaPlugin
+
+//check if the environment is JENKINS or LOCAL
+def jenkinsHome = System.getenv('JENKINS_HOME')
+def jobpath = new File(buildDir.toString() + "/reports/cobertura")
+if(jenkinsHome)
+  jobpath = new File(System.getenv('JENKINS_HOME') + "/jobs/" + System.getenv('JOB_NAME') + "/builds/reports/cobertura")
+
+mkdir jobpath
+
+cobertura {
+  coverageFormats = ['html', 'xml']
+  coverageIgnores = ['org.slf4j.Logger.*']	//only an example to skip instrumentation
+  coverageReportDir = jobpath
+}
+
+test.finalizedBy(project.tasks.cobertura)
+
