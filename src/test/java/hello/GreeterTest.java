@@ -18,4 +18,10 @@ public class GreeterTest {
 		Greeter greet =  new Greeter();
 		assertNotEquals("Hello world", greet.sayHello());
 	}
+	
+	@Test
+	public void failTestGreter1() {
+		Greeter greet =  new Greeter();
+		assertNotEquals("Hello world", greet.sayHello1());
+	}
 }
